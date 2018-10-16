@@ -86,7 +86,6 @@ static const char* optstring(const char* value,const char* opt){
 	if(!value){
 		return opt;
 	}
-
 	return value;
 }
 
@@ -106,7 +105,19 @@ void init_config(const char* config_path,struct skynet_config* config){
 		while(fgets(buf,1024,f)){
 			sscanf(buf,"%s=%s",key,value);
 			if(key == "thread"){
-				config->thread = optint(buf,key,8));
+				config->thread = optint(value,8));
+			}else if( key == "cpath"){
+				config->module_path=optstring(value,"./cservice/?.so");
+			}else if(key == "harbor"){
+				config->harbor=optint(value,1);
+			}else if(key == "daemon"){
+				config->daemon = optstring(value,NULL);
+			}else if(key == "logger"){
+				config->logger=optstring(value,NULL);
+			}else if{
+				config->logservice = optstring(value,"logger");
+			}else if(key == "profile"){
+				config->profile = optint(value,1);
 			}
 			memset(buf,0,1024);
 
