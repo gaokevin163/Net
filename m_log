@@ -1,0 +1,4 @@
+在skynet_log.c中修改skynet_log_open(struct skynet_context * ctx, uint32_t handle) 函数
+
+
+
