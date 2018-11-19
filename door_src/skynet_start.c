@@ -271,7 +271,7 @@ skynet_start(struct skynet_config * config) {
 		exit(1);
 	}
 
-	bootstrap(ctx, config->bootstrap);
+	//bootstrap(ctx, config->bootstrap);
 
 	start(config->thread);
 
