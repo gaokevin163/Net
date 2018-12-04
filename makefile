@@ -2,9 +2,9 @@ CC = cc
 CFLAGS = -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter  -g 
 LINK = $(CC)
 
-ALL_INCS = -I /door_src -I /jemalloc/include/jemalloc
+ALL_INCS = -I /door_src -I /door_jemalloc/include/jemalloc
 
-LD_FLAGS = -L./jemalloc/lib
+LD_FLAGS = -L./door_jemalloc/lib
 
 
 DOOR_DEPS = door_src/atomic.h  \
@@ -30,7 +30,7 @@ door_src/socket_server.h  \
 door_src/spinlock.h
 
 
-DOOR_INCS = -I ./door_src -I ./jemalloc/include/jemalloc
+DOOR_INCS = -I ./door_src -I ./door_jemalloc/include/jemalloc
 
 
 
