@@ -229,6 +229,9 @@ start(int thread) {
 	free_monitor(m);
 }
 
+
+
+//cmdline name:args
 static void
 bootstrap(struct skynet_context * logger, const char * cmdline) {
 	int sz = strlen(cmdline);

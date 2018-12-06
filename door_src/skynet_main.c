@@ -74,6 +74,51 @@ _init_env(lua_State *L) {
 */
 
 
+static int optint(const char* value,int opt){
+	if(!value){
+		return opt;
+	}
+	return strtol(value);
+}
+
+
+static const char* optstring(const char* value,const char* opt){
+	if(!value){
+		return opt;
+	}
+
+	return value;
+}
+
+
+
+
+
+
+//简单的text配置,配置字符之间不要有空格
+void init_config(const char* config_path,struct skynet_config* config){
+	//thread
+	FILE* f = fopen(config_path,"r");
+	if(f){
+		char buf[1024];
+		char key[20];
+		char value[1024];
+		while(fgets(buf,1024,f)){
+			sscanf(buf,"%s=%s",key,value);
+			if(key == "thread"){
+				config->thread = optint(buf,key,8));
+			}
+			memset(buf,0,1024);
+
+		}
+	}
+
+
+}
+
+
+
+
 int sigign() {
 	struct sigaction sa;
 	sa.sa_handler = SIG_IGN;
@@ -158,7 +203,9 @@ main(int argc, char *argv[]) {
 	//config.profile = optboolean("profile", 1);
 
 	//lua_close(L);
+	//解析配置文件	
 	
+
 	config.thread =8;
 	config.module_path = "./cservice/?.so";
 	config.harbor = 1;

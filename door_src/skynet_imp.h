@@ -1,6 +1,7 @@
 #ifndef SKYNET_IMP_H
 #define SKYNET_IMP_H
 
+/*
 struct skynet_config {
 	int thread;
 	int harbor;
@@ -11,6 +12,28 @@ struct skynet_config {
 	const char * logger;
 	const char * logservice;
 };
+*/
+
+
+struct service{
+	const char* name;
+	const char* param;
+
+};
+
+struct skynet_config{
+	int thread;
+	int harbor;
+	int profile;
+	const char* daemon;
+	const char* module_path;
+	const char* logger;
+	const char* logservice;
+	struct service* service_config; 
+};
+
+
+
 
 #define THREAD_WORKER 0
 #define THREAD_MAIN 1
