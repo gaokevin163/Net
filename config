@@ -6,3 +6,4 @@ master=127.0.0.1:2013
 standalone=0.0.0.0:2013
 cpath=cservice/?.so
 service=master
+https://github.com/cloudwu/skynet_package
