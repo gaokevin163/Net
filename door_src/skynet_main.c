@@ -96,16 +96,19 @@ static const char* optstring(const char* value,const char* opt){
 
 //简单的text配置,配置字符之间不要有空格
 void init_config(const char* config_path,struct skynet_config* config){
+	
+	memset(config,0,sizeof(*config));
 	//thread
 	FILE* f = fopen(config_path,"r");
 	if(f){
 		char buf[1024];
 		char key[20];
 		char value[1024];
+		char param[100];
 		while(fgets(buf,1024,f)){
-			sscanf(buf,"%s=%s",key,value);
+			sscanf(buf,"%s=%s:%s",key,value,param);
 			if(key == "thread"){
-				config->thread = optint(value,8));
+				config->thread = optint(value,8);
 			}else if( key == "cpath"){
 				config->module_path=optstring(value,"./cservice/?.so");
 			}else if(key == "harbor"){
@@ -114,16 +117,21 @@ void init_config(const char* config_path,struct skynet_config* config){
 				config->daemon = optstring(value,NULL);
 			}else if(key == "logger"){
 				config->logger=optstring(value,NULL);
-			}else if{
+			}else if(key == "logservice"){
 				config->logservice = optstring(value,"logger");
 			}else if(key == "profile"){
 				config->profile = optint(value,1);
+			}else{
+				if(key == "service"){
+					struct service* service = skynet_malloc(sizeof(*service));
+					service->name =optstring(value,"");
+					service->param=optstring(param,"");
+					config->service_config[config->service_num++] =service;
+				}
 			}
 			memset(buf,0,1024);
-
 		}
 	}
-
 
 }
 
@@ -215,16 +223,15 @@ main(int argc, char *argv[]) {
 
 	//lua_close(L);
 	//解析配置文件	
-	
+	init_config(&config);
 
-	config.thread =8;
-	config.module_path = "./cservice/?.so";
-	config.harbor = 1;
-	config.daemon = NULL;
-	config.logger = NULL;
-	config.logservice = "logger";
-	config.profile = 1;	
-
+	//config.thread =8;
+	//config.module_path = "./cservice/?.so";
+	//config.harbor = 1;
+	//config.daemon = NULL;
+	//config.logger = NULL;
+	//config.logservice = "logger";
+	//config.profile = 1;	
 
 	skynet_start(&config);
 	skynet_globalexit();

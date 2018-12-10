@@ -29,7 +29,8 @@ struct skynet_config{
 	const char* module_path;
 	const char* logger;
 	const char* logservice;
-	struct service* service_config; 
+	struct service* service_config;
+	uint8_t service_num; 
 };
 
 

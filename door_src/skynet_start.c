@@ -233,16 +233,19 @@ start(int thread) {
 
 //cmdline name:args
 static void
-bootstrap(struct skynet_context * logger, const char * cmdline) {
-	int sz = strlen(cmdline);
-	char name[sz+1];
-	char args[sz+1];
-	sscanf(cmdline, "%s %s", name, args);
-	struct skynet_context *ctx = skynet_context_new(name, args);
-	if (ctx == NULL) {
-		skynet_error(NULL, "Bootstrap error : %s\n", cmdline);
-		skynet_context_dispatchall(logger);
-		exit(1);
+bootstrap(struct skynet_context * logger, const skynet_config* config) {
+	for(size_t i = config->service_num;i < config->service_num;i++){
+		const char* name = strlen(config->service_config[i]->name);
+		//char name[sz+1];
+		const char* args = strlen(config->service_config[i]->param);
+		//char args[sz+1];
+		//sscanf(cmdline, "%s %s", name, args);
+		struct skynet_context *ctx = skynet_context_new(name, args);
+		if (ctx == NULL) {
+			skynet_error(NULL, "Bootstrap error : %s\n", name);
+			skynet_context_dispatchall(logger);
+			exit(1);
+		}
 	}
 }
 
@@ -274,7 +277,7 @@ skynet_start(struct skynet_config * config) {
 		exit(1);
 	}
 
-	//bootstrap(ctx, config->bootstrap);
+	bootstrap(ctx, config->bootstrap);
 
 	start(config->thread);
 
