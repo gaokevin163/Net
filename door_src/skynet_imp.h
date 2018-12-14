@@ -1,6 +1,9 @@
 #ifndef SKYNET_IMP_H
 #define SKYNET_IMP_H
 
+#define MAX_SERVICE 100
+
+
 /*
 struct skynet_config {
 	int thread;
@@ -30,9 +33,11 @@ struct skynet_config{
 	const char* logger;
 	const char* logservice;
 	struct service* service_config;
-	uint8_t service_num; 
+	int cap; 
+	uint8_t tail;
+	const char* master_address;
+	const char* harbor_address;
 };
-
 
 
 

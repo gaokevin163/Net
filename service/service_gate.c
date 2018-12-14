@@ -383,7 +383,7 @@ gate_init(struct gate *g , struct skynet_context * ctx, char * parm) {
 	}
 	
 	g->client_tag = client_tag;
-	g->header_size = header=='S' ? 2 : 4;
+	g->header_size = header=='S' ? 2 : 4;//消息的长度是2还是4
 
 	skynet_callback(ctx,g,_cb);
 

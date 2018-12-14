@@ -1,14 +1,14 @@
-thread=8
-logger=NULL
-logservice="logger"
-profile=1
-harbor=1
-address=127.0.0.1:2562
-master=127.0.0.1:2013
-standalone=0.0.0.0:2013
-cpath=cservice/?.so
-service=master:
-service=harbor:
-service=gate:
+thread=8;
+logger=NULL;
+logservice=logger;
+profile=1;
+harbor=1;
+address=127.0.0.1:2562;
+master=127.0.0.1:2013;
+standalone=0.0.0.0:2013;
+cpath=cservice/?.so;
+service=master--param=NULL;
+service=harbor;
+service=gate;
 
 https://github.com/cloudwu/skynet_package

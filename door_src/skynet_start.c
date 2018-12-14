@@ -233,13 +233,13 @@ start(int thread) {
 
 //cmdline name:args
 static void
-bootstrap(struct skynet_context * logger, const skynet_config* config) {
-	for(size_t i = config->service_num;i < config->service_num;i++){
-		const char* name = strlen(config->service_config[i]->name);
+bootstrap(struct skynet_context * logger,struct skynet_config* config) {
+	size_t i;
+	for(i = 0;i < config->tail;i++){
+		const char* name = config->service_config[i].name;
 		//char name[sz+1];
-		const char* args = strlen(config->service_config[i]->param);
-		//char args[sz+1];
-		//sscanf(cmdline, "%s %s", name, args);
+		const char* args = config->service_config[i].param;
+		fprintf(stderr,"lanuch service %s\n",name);
 		struct skynet_context *ctx = skynet_context_new(name, args);
 		if (ctx == NULL) {
 			skynet_error(NULL, "Bootstrap error : %s\n", name);
@@ -277,7 +277,7 @@ skynet_start(struct skynet_config * config) {
 		exit(1);
 	}
 
-	bootstrap(ctx, config->bootstrap);
+	bootstrap(ctx,config);
 
 	start(config->thread);
 

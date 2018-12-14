@@ -74,19 +74,27 @@ _init_env(lua_State *L) {
 */
 
 
+static struct skynet_config* config = NULL;
+
+
 static int optint(const char* value,int opt){
 	if(!value){
 		return opt;
 	}
-	return strtol(value);
+	return strtol(value,NULL,10);
 }
 
 
 static const char* optstring(const char* value,const char* opt){
-	if(!value){
-		return opt;
+	if(value){
+		if(!strcmp(value,"NULL")){
+			return opt;
+		}
+		char* ret = skynet_malloc(strlen(value) + 1);
+		memcpy(ret,value,strlen(value) + 1);
+		return ret;
 	}
-	return value;
+	return opt;
 }
 
 
@@ -95,44 +103,62 @@ static const char* optstring(const char* value,const char* opt){
 
 
 //简单的text配置,配置字符之间不要有空格
-void init_config(const char* config_path,struct skynet_config* config){
-	
-	memset(config,0,sizeof(*config));
+void init_config(const char* config_path){
+	config = skynet_malloc(sizeof(struct skynet_config));
+	config->cap = MAX_SERVICE;	
+	config->tail = 0;
+	config->service_config = skynet_malloc(sizeof(struct service) * config->cap);
 	//thread
 	FILE* f = fopen(config_path,"r");
 	if(f){
 		char buf[1024];
-		char key[20];
-		char value[1024];
-		char param[100];
 		while(fgets(buf,1024,f)){
-			sscanf(buf,"%s=%s:%s",key,value,param);
-			if(key == "thread"){
+			char* str_tem = strchr(buf,'=');
+			if(!str_tem){
+				memset(buf,0,1024);
+				continue;
+			}
+			char key[str_tem - buf + 1];
+			strncpy(key,buf,(str_tem-buf));
+			key[str_tem-buf] ='\0';
+			char* value = strtok(str_tem + 1 ,";");
+			if(!strcmp(key,"thread")){
+				//char* value = strtok(str_tem + 1 ,';');
 				config->thread = optint(value,8);
-			}else if( key == "cpath"){
+			}else if(!strcmp(key,"cpath")){			
 				config->module_path=optstring(value,"./cservice/?.so");
-			}else if(key == "harbor"){
+			}else if(!strcmp(key,"harbor")){
 				config->harbor=optint(value,1);
-			}else if(key == "daemon"){
+			}else if(!strcmp(key , "daemon")){
 				config->daemon = optstring(value,NULL);
-			}else if(key == "logger"){
+			}else if(!strcmp(key, "logger")){
 				config->logger=optstring(value,NULL);
-			}else if(key == "logservice"){
+			}else if(!strcmp(key , "logservice")){
 				config->logservice = optstring(value,"logger");
-			}else if(key == "profile"){
+			}else if(!strcmp(key,"profile")){
 				config->profile = optint(value,1);
 			}else{
-				if(key == "service"){
-					struct service* service = skynet_malloc(sizeof(*service));
-					service->name =optstring(value,"");
-					service->param=optstring(param,"");
-					config->service_config[config->service_num++] =service;
+				if(!strcmp(key , "service")){
+					//分析服务的参数
+					char* name = strtok(value,"-");
+					char* param = strchr(value,'=');
+					struct service s;
+					s.name =optstring(name,"");
+					config->service_config[config->tail].name=s.name;
+					if(param){	
+						s.param=strtok(param + 1 ,";");
+						s.param =optstring(s.param,NULL);
+						config->service_config[config->tail].param =s.param;
+					}else{
+						config->service_config[config->tail].param=NULL;
+					}
+					
+					config->tail++;
 				}
 			}
-			memset(buf,0,1024);
+		memset(buf,0,1024);
 		}
 	}
-
 }
 
 
@@ -179,7 +205,7 @@ static const char * load_config = "\
 */
 int
 main(int argc, char *argv[]) {
-/*
+
 	const char * config_file = NULL ;
 	if (argc > 1) {
 		config_file = argv[1];
@@ -188,14 +214,14 @@ main(int argc, char *argv[]) {
 			"usage: skynet configfilename\n");
 		return 1;
 	}
-*/
+
 	//luaS_initshr();
 	skynet_globalinit();
 	//skynet_env_init();
 
 	sigign();
 
-	struct skynet_config config;
+	//struct skynet_config config;
 
 	//struct lua_State *L = luaL_newstate();
 	//luaL_openlibs(L);	// link lua lib
@@ -223,8 +249,12 @@ main(int argc, char *argv[]) {
 
 	//lua_close(L);
 	//解析配置文件	
-	init_config(&config);
-
+	init_config(config_file);
+	int i;
+	for(i = 0; i< config->tail;i++){
+		fprintf(stderr,"launch service %s\n",config->service_config[i].name);
+	}
+	fprintf(stderr,"module_path %s\n",config->module_path);
 	//config.thread =8;
 	//config.module_path = "./cservice/?.so";
 	//config.harbor = 1;
@@ -233,7 +263,7 @@ main(int argc, char *argv[]) {
 	//config.logservice = "logger";
 	//config.profile = 1;	
 
-	skynet_start(&config);
+	skynet_start(config);
 	skynet_globalexit();
 	//luaS_exitshr();
 
